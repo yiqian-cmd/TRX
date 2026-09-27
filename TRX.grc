@@ -1,0 +1,2007 @@
+options:
+  parameters:
+    author: RMUC2026-NC
+    catch_exceptions: 'True'
+    category: '[RMUC2026-NC]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: 'Full-wave single-NanoSDR loopback. TX: ZMQ(53101) -> 4 parallel
+      GFSK modulators (info 540kHz@1.5628, int1 940kHz@2.8194, int2 860kHz@2.5681,
+      int3 250kHz@0.6517) with web-controlled gates -> 4-input add -> Pluto Sink.
+      RX: Pluto Source -> dual NCO branches: interfere branch (auto-adapting bw/gain
+      via rx_int_bw) -> ZMQ 53104, info branch (540kHz) -> ZMQ 53103. XMLRPC server
+      on 53106.'
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: TRX
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: TRX 全波形收发回环 - 单台Pluto (信息波+红方1/2/3级干扰波+第二源信息波)
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 8
+    rotation: 0
+    state: enabled
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: 采样率 1 MHz
+    value: '1000000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 0
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters:
+    comment: 每符号采样数
+    value: '47'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 40
+    rotation: 0
+    state: enabled
+- name: bt
+  id: variable
+  parameters:
+    comment: GFSK BT
+    value: '0.35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 80
+    rotation: 0
+    state: enabled
+- name: bw
+  id: variable
+  parameters:
+    comment: Pluto 模拟射频带宽
+    value: '1000000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 120
+    rotation: 0
+    state: enabled
+- name: loop_bw
+  id: variable
+  parameters:
+    comment: 符号同步环带宽
+    value: '0.005'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 160
+    rotation: 0
+    state: enabled
+- name: Time_Sink_Number
+  id: variable
+  parameters:
+    comment: ''
+    value: '200'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 200
+    rotation: 0
+    state: enabled
+- name: sdr_uri1
+  id: variable
+  parameters:
+    comment: 本机 SDR 的 IP（按实际修改）
+    value: '''ip:192.168.2.1'''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 240
+    rotation: 0
+    state: enabled
+- name: info_bw
+  id: variable
+  parameters:
+    comment: 信息波带宽(规则表5-23)
+    value: '540000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 280
+    rotation: 0
+    state: enabled
+- name: int1_bw
+  id: variable
+  parameters:
+    comment: 红方1级干扰带宽
+    value: '940000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 320
+    rotation: 0
+    state: enabled
+- name: int2_bw
+  id: variable
+  parameters:
+    comment: 红方2级干扰带宽
+    value: '860000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 360
+    rotation: 0
+    state: enabled
+- name: int3_bw
+  id: variable
+  parameters:
+    comment: 红方3级干扰带宽
+    value: '250000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 400
+    rotation: 0
+    state: enabled
+- name: rx_info_bw
+  id: variable
+  parameters:
+    comment: 信息支路带宽
+    value: '540000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 440
+    rotation: 0
+    state: enabled
+- name: rx_int_fir_taps
+  id: variable
+  parameters:
+    comment: 干扰支路信道滤波抽头(自适应)
+    value: firdes.low_pass(1, samp_rate, rx_int_bw / 2, 20000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 520
+    rotation: 0
+    state: enabled
+- name: rx_info_fir_taps
+  id: variable
+  parameters:
+    comment: 信息支路信道滤波抽头
+    value: firdes.low_pass(1, samp_rate, rx_info_bw / 2, 20000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 560
+    rotation: 0
+    state: enabled
+- name: tx_center_freq1
+  id: variable
+  parameters:
+    comment: 主发射频点(随网页波形自动切换) [XMLRPC 同步]
+    value: '432200000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 600
+    rotation: 0
+    state: enabled
+- name: tx_center_freq2
+  id: variable
+  parameters:
+    comment: 第二发射频点(本图未用第二发射) [XMLRPC 同步]
+    value: '433200000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 640
+    rotation: 0
+    state: enabled
+- name: tx_attenuation1
+  id: variable
+  parameters:
+    comment: 主发射衰减 dB [XMLRPC 同步]
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 680
+    rotation: 0
+    state: enabled
+- name: tx_attenuation2
+  id: variable
+  parameters:
+    comment: 第二发射衰减 dB [XMLRPC 同步]
+    value: '60'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 720
+    rotation: 0
+    state: enabled
+- name: tx_mod_info_en
+  id: variable
+  parameters:
+    comment: 信息波门控 [XMLRPC 同步]
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 760
+    rotation: 0
+    state: enabled
+- name: tx_mod_int1_en
+  id: variable
+  parameters:
+    comment: 1级干扰门控 [XMLRPC 同步]
+    value: '1.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 800
+    rotation: 0
+    state: enabled
+- name: tx_mod_int2_en
+  id: variable
+  parameters:
+    comment: 2级干扰门控 [XMLRPC 同步]
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 840
+    rotation: 0
+    state: enabled
+- name: tx_mod_int3_en
+  id: variable
+  parameters:
+    comment: 3级干扰门控 [XMLRPC 同步]
+    value: '0.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 880
+    rotation: 0
+    state: enabled
+- name: rx_center_freq
+  id: variable
+  parameters:
+    comment: RX 中心频点 [XMLRPC 同步]
+    value: '432200000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 920
+    rotation: 0
+    state: enabled
+- name: rx_interfere_channel_freq
+  id: variable
+  parameters:
+    comment: 干扰支路频点 [XMLRPC 同步]
+    value: '432200000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 960
+    rotation: 0
+    state: enabled
+- name: rx_info_channel_freq
+  id: variable
+  parameters:
+    comment: 信息支路频点 [XMLRPC 同步]
+    value: '433200000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 1000
+    rotation: 0
+    state: enabled
+- name: rx_int_bw
+  id: variable
+  parameters:
+    comment: 当前干扰等级带宽 [XMLRPC 同步]
+    value: '940000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 1040
+    rotation: 0
+    state: enabled
+- name: rx_gain
+  id: variable
+  parameters:
+    comment: RX 手动增益 [XMLRPC 同步]
+    value: '40'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 0
+    - 1080
+    rotation: 0
+    state: enabled
+- name: zmq_bits_in
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:53101
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: Python TxWorker packed bytes
+    hwm: '-1'
+    key: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'False'
+    timeout: '100'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 80
+    - 640
+    rotation: 0
+    state: enabled
+- name: zmq_bits_in_2nd
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:53102
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: 第二发射源信息波 packed bytes (网页启用后才发流)
+    hwm: '-1'
+    key: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'False'
+    timeout: '100'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 80
+    - 1120
+    rotation: 0
+    state: enabled
+- name: tx_mod_info_2nd
+  id: digital_gfsk_mod
+  parameters:
+    affinity: ''
+    alias: ''
+    bt: bt
+    comment: 第二发射源信息波 GFSK(固定信息波)
+    do_unpack: 'True'
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    sensitivity: 2*3.141592653589793*((info_bw/2)-(samp_rate/sps))/samp_rate
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 1120
+    rotation: 0
+    state: enabled
+- name: tx_mod_info
+  id: digital_gfsk_mod
+  parameters:
+    affinity: ''
+    alias: ''
+    bt: bt
+    comment: 信息波 GFSK, sens≈1.5628
+    do_unpack: 'True'
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    sensitivity: 2*3.141592653589793*((info_bw/2)-(samp_rate/sps))/samp_rate
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 480
+    rotation: 0
+    state: enabled
+- name: tx_mod_int1
+  id: digital_gfsk_mod
+  parameters:
+    affinity: ''
+    alias: ''
+    bt: bt
+    comment: 1级干扰 GFSK, sens≈2.8194
+    do_unpack: 'True'
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    sensitivity: 2*3.141592653589793*((int1_bw/2)-(samp_rate/sps))/samp_rate
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 640
+    rotation: 0
+    state: enabled
+- name: tx_mod_int2
+  id: digital_gfsk_mod
+  parameters:
+    affinity: ''
+    alias: ''
+    bt: bt
+    comment: 2级干扰 GFSK, sens≈2.5681
+    do_unpack: 'True'
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    sensitivity: 2*3.141592653589793*((int2_bw/2)-(samp_rate/sps))/samp_rate
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 800
+    rotation: 0
+    state: enabled
+- name: tx_mod_int3
+  id: digital_gfsk_mod
+  parameters:
+    affinity: ''
+    alias: ''
+    bt: bt
+    comment: 3级干扰 GFSK, sens≈0.6517
+    do_unpack: 'True'
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    sensitivity: 2*3.141592653589793*((int3_bw/2)-(samp_rate/sps))/samp_rate
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 960
+    rotation: 0
+    state: enabled
+- name: tx_mod_info_gate
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 信息波门控
+    const: tx_mod_info_en
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 600
+    - 480
+    rotation: 0
+    state: enabled
+- name: tx_mod_int1_gate
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 1级门控
+    const: tx_mod_int1_en
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 600
+    - 640
+    rotation: 0
+    state: enabled
+- name: tx_mod_int2_gate
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 2级门控
+    const: tx_mod_int2_en
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 600
+    - 800
+    rotation: 0
+    state: enabled
+- name: tx_mod_int3_gate
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 3级门控
+    const: tx_mod_int3_en
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 600
+    - 960
+    rotation: 0
+    state: enabled
+- name: tx_wave_add
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 四路门控波形+第二源信息波 叠加
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '5'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 860
+    - 700
+    rotation: 0
+    state: enabled
+- name: nanosdr_sink
+  id: iio_pluto_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    attenuation1: tx_attenuation1
+    bandwidth: samp_rate
+    buffer_size: '32768'
+    comment: 'Pluto 发射: 频点/衰减由 XMLRPC 实时控制'
+    cyclic: 'False'
+    filter: ''
+    filter_source: '''Auto'''
+    fpass: '0'
+    frequency: tx_center_freq1
+    fstop: '0'
+    len_tag_key: ''
+    samplerate: samp_rate
+    type: fc32
+    uri: sdr_uri1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1120
+    - 700
+    rotation: 0
+    state: enabled
+- name: xmlrpc_server
+  id: xmlrpc_server
+  parameters:
+    addr: 0.0.0.0
+    alias: ''
+    comment: Python 参数同步
+    port: '53106'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 80
+    - 80
+    rotation: 0
+    state: enabled
+- name: nanosdr_source
+  id: iio_pluto_source
+  parameters:
+    affinity: ''
+    alias: ''
+    bandwidth: bw
+    bbdc: 'True'
+    buffer_size: '32768'
+    comment: 'Pluto 接收: 频点/增益由 XMLRPC 实时控制'
+    filter: ''
+    filter_source: '''Auto'''
+    fpass: '0'
+    frequency: rx_center_freq
+    fstop: '0'
+    gain1: '''manual'''
+    len_tag_key: packet_len
+    manual_gain1: rx_gain
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    quadrature: 'True'
+    rfdc: 'True'
+    samplerate: samp_rate
+    type: fc32
+    uri: sdr_uri1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 80
+    - 1200
+    rotation: 0
+    state: enabled
+- name: rx_int_nco
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: '干扰支路 NCO: 干扰频点-RX中心'
+    freq: rx_interfere_channel_freq - rx_center_freq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: complex
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 1340
+    rotation: 0
+    state: enabled
+- name: rx_int_shift
+  id: blocks_multiply_conjugate_cc
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 共轭相乘搬移频谱
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 600
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_int_filter
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 信道低通(随 rx_int_bw 自适应)
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: rx_int_fir_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 860
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_int_agc
+  id: analog_agc_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 自动增益
+    gain: '1.0'
+    max_gain: '65536'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    rate: 1e-5
+    reference: '0.5'
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1120
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_int_quad
+  id: analog_quadrature_demod_cf
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: FM 鉴频(增益随 rx_int_bw 自适应)
+    gain: 1/(2*3.141592653589793*((rx_int_bw/2)-(samp_rate/sps))/samp_rate)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1380
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_int_rail
+  id: analog_rail_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 限幅 ±1.2
+    hi: '1.2'
+    lo: '-1.2'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1640
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_int_gauss
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 高斯匹配滤波
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: firdes.gaussian(1.0, sps, bt, int(3*sps) + 1)
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1900
+    - 1320
+    rotation: 0
+    state: enabled
+- name: rx_int_dc_iir
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: 1e-8
+    comment: 慢速IIR跟踪直流
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1900
+    - 1420
+    rotation: 0
+    state: enabled
+- name: rx_int_dc_cancel
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 去直流
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1640
+    - 1400
+    rotation: 0
+    state: enabled
+- name: rx_int_sync
+  id: digital_symbol_sync_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 符号同步
+    constellation: digital.constellation_bpsk().base()
+    damping: '1.0'
+    loop_bw: loop_bw
+    max_dev: '1.5'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nfilters: '128'
+    osps: '1'
+    pfb_mf_taps: '[]'
+    resamp_type: digital.IR_MMSE_8TAP
+    sps: sps
+    ted_gain: '1.0'
+    ted_type: digital.TED_ZERO_CROSSING
+    type: ff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2160
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_int_slicer
+  id: digital_binary_slicer_fb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 二值化
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2420
+    - 1240
+    rotation: 0
+    state: enabled
+- name: zmq_int_bits_out
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://0.0.0.0:53104
+    affinity: ''
+    alias: ''
+    bind: 'True'
+    comment: 干扰支路 unpacked bits -> Python(53104)
+    drop_on_hwm: 'True'
+    hwm: '-1'
+    key: ''
+    pass_tags: 'False'
+    timeout: '100'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2680
+    - 1240
+    rotation: 0
+    state: enabled
+- name: rx_info_nco
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: '信息支路 NCO: 信息频点-RX中心'
+    freq: rx_info_channel_freq - rx_center_freq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: complex
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 340
+    - 1740
+    rotation: 0
+    state: enabled
+- name: rx_info_shift
+  id: blocks_multiply_conjugate_cc
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 共轭相乘搬移频谱
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 600
+    - 1640
+    rotation: 0
+    state: enabled
+- name: rx_info_filter
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 信息信道低通 270kHz
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: rx_info_fir_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 860
+    - 1640
+    rotation: 0
+    state: enabled
+- name: rx_info_agc2
+  id: analog_agc_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 自动增益
+    gain: '1.0'
+    max_gain: '65536'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    rate: 1e-5
+    reference: '0.5'
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1120
+    - 1640
+    rotation: 0
+    state: enabled
+- name: rx_info_quad
+  id: analog_quadrature_demod_cf
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: FM 鉴频(sens≈1.5628 的倒数)
+    gain: 1/(2*3.141592653589793*((rx_info_bw/2)-(samp_rate/sps))/samp_rate)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1380
+    - 1640
+    rotation: 0
+    state: enabled
+- name: rx_info_rail
+  id: analog_rail_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 限幅 ±1.2
+    hi: '1.2'
+    lo: '-1.2'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1640
+    - 1640
+    rotation: 0
+    state: enabled
+- name: rx_info_gauss
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 高斯匹配滤波
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: firdes.gaussian(1.0, sps, bt, int(3*sps) + 1)
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1900
+    - 1720
+    rotation: 0
+    state: enabled
+- name: rx_info_dc_iir
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: 1e-8
+    comment: 慢速IIR跟踪直流
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1900
+    - 1820
+    rotation: 0
+    state: enabled
+- name: rx_info_dc_cancel
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 去直流
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1640
+    - 1800
+    rotation: 0
+    state: enabled
+- name: rx_info_sync
+  id: digital_symbol_sync_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 符号同步
+    constellation: digital.constellation_bpsk().base()
+    damping: '1.0'
+    loop_bw: loop_bw
+    max_dev: '1.5'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nfilters: '128'
+    osps: '1'
+    pfb_mf_taps: '[]'
+    resamp_type: digital.IR_MMSE_8TAP
+    sps: sps
+    ted_gain: '1.0'
+    ted_type: digital.TED_ZERO_CROSSING
+    type: ff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2160
+    - 1640
+    rotation: 0
+    state: enabled
+- name: rx_info_slicer
+  id: digital_binary_slicer_fb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 二值化
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2420
+    - 1640
+    rotation: 0
+    state: enabled
+- name: zmq_info_bits_out
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://0.0.0.0:53103
+    affinity: ''
+    alias: ''
+    bind: 'True'
+    comment: 信息支路 unpacked bits -> Python(53103)
+    drop_on_hwm: 'True'
+    hwm: '-1'
+    key: ''
+    pass_tags: 'False'
+    timeout: '100'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2680
+    - 1640
+    rotation: 0
+    state: enabled
+- name: gui_tx_freq
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: 发射合成频谱
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: ''
+    label: Relative Gain
+    label1: ''
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: TX spectrum (sum of gated waves)
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: complex
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-120'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1120
+    - 900
+    rotation: 0
+    state: enabled
+- name: gui_int_freq
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: 干扰支路频谱
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: ''
+    label: Relative Gain
+    label1: ''
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: RX interfere spectrum
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: complex
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-120'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 860
+    - 1500
+    rotation: 0
+    state: enabled
+- name: gui_info_freq
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: 信息支路频谱
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: ''
+    label: Relative Gain
+    label1: ''
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: RX info spectrum
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: complex
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-120'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 860
+    - 1900
+    rotation: 0
+    state: enabled
+- name: gui_int_demod
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: 干扰鉴频波形
+    ctrlpanel: 'False'
+    entags: 'False'
+    grid: 'True'
+    gui_hint: ''
+    label1: Quad demod
+    label10: Signal 10
+    label2: Gaussian match
+    label3: Energy discriminator
+    label4: Energy -0.5fdev %
+    label5: Energy +0.5fdev %
+    label6: Energy +fdev %
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: Interfere FM discriminator
+    nconnections: '1'
+    size: Time_Sink_Number*sps
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1.5'
+    ymin: '-1.5'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1380
+    - 1500
+    rotation: 0
+    state: enabled
+- name: gui_int_bits
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: 干扰同步比特
+    ctrlpanel: 'False'
+    entags: 'False'
+    grid: 'True'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: Interfere sync output
+    nconnections: '1'
+    size: Time_Sink_Number
+    srate: samp_rate/sps
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1.5'
+    ymin: '-1.5'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2160
+    - 1500
+    rotation: 0
+    state: enabled
+- name: gui_info_bits
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: 信息同步比特
+    ctrlpanel: 'False'
+    entags: 'False'
+    grid: 'True'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: Info sync output
+    nconnections: '1'
+    size: Time_Sink_Number
+    srate: samp_rate/sps
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1.5'
+    ymin: '-1.5'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 2160
+    - 1900
+    rotation: 0
+    state: enabled
+connections:
+- - zmq_bits_in
+  - '0'
+  - tx_mod_info
+  - '0'
+- - zmq_bits_in
+  - '0'
+  - tx_mod_int1
+  - '0'
+- - zmq_bits_in
+  - '0'
+  - tx_mod_int2
+  - '0'
+- - zmq_bits_in
+  - '0'
+  - tx_mod_int3
+  - '0'
+- - tx_mod_info
+  - '0'
+  - tx_mod_info_gate
+  - '0'
+- - tx_mod_int1
+  - '0'
+  - tx_mod_int1_gate
+  - '0'
+- - tx_mod_int2
+  - '0'
+  - tx_mod_int2_gate
+  - '0'
+- - tx_mod_int3
+  - '0'
+  - tx_mod_int3_gate
+  - '0'
+- - tx_mod_info_gate
+  - '0'
+  - tx_wave_add
+  - '0'
+- - tx_mod_int1_gate
+  - '0'
+  - tx_wave_add
+  - '1'
+- - tx_mod_int2_gate
+  - '0'
+  - tx_wave_add
+  - '2'
+- - tx_mod_int3_gate
+  - '0'
+  - tx_wave_add
+  - '3'
+- - zmq_bits_in_2nd
+  - '0'
+  - tx_mod_info_2nd
+  - '0'
+- - tx_mod_info_2nd
+  - '0'
+  - tx_wave_add
+  - '4'
+- - tx_wave_add
+  - '0'
+  - nanosdr_sink
+  - '0'
+- - tx_wave_add
+  - '0'
+  - gui_tx_freq
+  - '0'
+- - nanosdr_source
+  - '0'
+  - rx_int_shift
+  - '0'
+- - nanosdr_source
+  - '0'
+  - rx_info_shift
+  - '0'
+- - rx_int_nco
+  - '0'
+  - rx_int_shift
+  - '1'
+- - rx_info_nco
+  - '0'
+  - rx_info_shift
+  - '1'
+- - rx_int_shift
+  - '0'
+  - gui_int_freq
+  - '0'
+- - rx_info_shift
+  - '0'
+  - gui_info_freq
+  - '0'
+- - rx_int_shift
+  - '0'
+  - rx_int_filter
+  - '0'
+- - rx_int_filter
+  - '0'
+  - rx_int_agc
+  - '0'
+- - rx_int_agc
+  - '0'
+  - rx_int_quad
+  - '0'
+- - rx_int_quad
+  - '0'
+  - rx_int_rail
+  - '0'
+- - rx_int_rail
+  - '0'
+  - gui_int_demod
+  - '0'
+- - rx_int_rail
+  - '0'
+  - rx_int_gauss
+  - '0'
+- - rx_int_gauss
+  - '0'
+  - rx_int_dc_cancel
+  - '0'
+- - rx_int_gauss
+  - '0'
+  - rx_int_dc_iir
+  - '0'
+- - rx_int_dc_iir
+  - '0'
+  - rx_int_dc_cancel
+  - '1'
+- - rx_int_dc_cancel
+  - '0'
+  - rx_int_sync
+  - '0'
+- - rx_int_sync
+  - '0'
+  - rx_int_slicer
+  - '0'
+- - rx_int_sync
+  - '0'
+  - gui_int_bits
+  - '0'
+- - rx_int_slicer
+  - '0'
+  - zmq_int_bits_out
+  - '0'
+- - rx_info_shift
+  - '0'
+  - rx_info_filter
+  - '0'
+- - rx_info_filter
+  - '0'
+  - rx_info_agc2
+  - '0'
+- - rx_info_agc2
+  - '0'
+  - rx_info_quad
+  - '0'
+- - rx_info_quad
+  - '0'
+  - rx_info_rail
+  - '0'
+- - rx_info_rail
+  - '0'
+  - rx_info_gauss
+  - '0'
+- - rx_info_gauss
+  - '0'
+  - rx_info_dc_cancel
+  - '0'
+- - rx_info_gauss
+  - '0'
+  - rx_info_dc_iir
+  - '0'
+- - rx_info_dc_iir
+  - '0'
+  - rx_info_dc_cancel
+  - '1'
+- - rx_info_dc_cancel
+  - '0'
+  - rx_info_sync
+  - '0'
+- - rx_info_sync
+  - '0'
+  - rx_info_slicer
+  - '0'
+- - rx_info_sync
+  - '0'
+  - gui_info_bits
+  - '0'
+- - rx_info_slicer
+  - '0'
+  - zmq_info_bits_out
+  - '0'
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0
